@@ -1,0 +1,124 @@
+variables:
+  PROJECT_NAME: "MyProject"
+  REPORT_GENERATOR_FILE_FILTER: "-AspNetCoreGeneratedDocument.*;Program"
+  CONFIG_FILE: ".config/config.json"
+  
+stages:
+  - build
+  - test
+  - publish
+  - release
+  - deploy
+
+build:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  stage: build
+  script:
+    - apt-get update
+    - apt-get install -y curl jq
+    - VERSION=$(jq -r '.version' ./.config/config.json)
+    - echo ${VERSION}
+    - dotnet build --configuration Release -p:Version=${VERSION}
+
+test-with-report:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  stage: test
+  script:
+    - dotnet new tool-manifest
+    - dotnet tool install dotnet-reportgenerator-globaltool
+    - cd ./tests/${PROJECT_NAME}.Tests
+    - dotnet test -c Release --collect:"XPlat Code Coverage" --logger:"junit;LogFilePath=${CI_PROJECT_DIR}/artifacts/JunitResult.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+    - cp ./TestResults/**/coverage.cobertura.xml "${CI_PROJECT_DIR}/artifacts/CoverageResult.xml"
+    - rm -r ./TestResults/
+    - dotnet tool run reportgenerator "-reports:${CI_PROJECT_DIR}/artifacts/CoverageResult.xml" "-targetdir:${CI_PROJECT_DIR}/artifacts" "-reportTypes:TextSummary;Html" "-classfilters:${REPORT_GENERATOR_FILE_FILTER}"
+    - cat ${CI_PROJECT_DIR}/artifacts/Summary.txt
+    - echo 'End Summary'
+  coverage: /Line coverage[\s\S].+%/
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/artifacts/CoverageResult.xml
+      - ${CI_PROJECT_DIR}/artifacts/JunitResult.xml
+      - ${CI_PROJECT_DIR}/artifacts/Summary.txt
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: ./**/CoverageResult.xml
+      junit:
+        - ./**/JunitResult.xml
+
+publish:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  stage: publish
+  script:
+    - apt-get update
+    - apt-get install -y curl jq zip
+    - VERSION=$(jq -r '.version' ./.config/config.json)
+    - echo ${VERSION}
+    - dotnet publish --configuration Release -p:Version=${VERSION} --output bin/
+    - cd bin/
+    - zip -r $PROJECT_NAME-${VERSION}.zip ./*
+    - cp $PROJECT_NAME-${VERSION}.zip ../$PROJECT_NAME-${VERSION}.zip
+    - ls ..
+  artifacts:
+    paths:
+      - "./*.zip"
+
+upload:
+  image: python:3.11
+  stage: publish
+  needs: [ "publish" ]
+  script:
+    - apt-get update
+    - apt-get install -y jq curl
+    - VERSION=$(jq -r '.version' ./.config/config.json)
+    - echo ${VERSION}
+    - PACKAGE_REGISTRY_URL=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release-v${VERSION}/${VERSION}
+    - ls
+    - echo $PROJECT_NAME-${VERSION}.zip
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ./$PROJECT_NAME-${VERSION}.zip ${PACKAGE_REGISTRY_URL}/$PROJECT_NAME-${VERSION}.zip
+
+add-changelog:
+  stage: release
+  image: python:3.11
+  script: 
+    - apt-get update
+    - apt-get install -y curl jq
+    - VERSION=$(jq -r '.version' ./.config/config.json)
+    - echo ${VERSION}
+    - DATA_VERSION="version=${VERSION}"
+    - echo ${DATA_VERSION}
+    - URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/changelog"
+    - curl --request POST --header "JOB-TOKEN:${CI_JOB_TOKEN}" --data ${DATA_VERSION} $URL
+
+release-job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs: ["add-changelog"]
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - cat /etc/os-release
+    - apk update
+    - apk add jq
+    - VERSION=$(jq -r '.version' ./.config/config.json)
+    - |
+      release-cli create --name "v${VERSION}" --tag-name v${VERSION} \
+        --assets-link "{\"name\":\"$PROJECT_NAME-${VERSION}\",\"url\":\"${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/release-v${VERSION}/${VERSION}/$PROJECT_NAME-${VERSION}.zip\"}" \
+        --description ./CHANGELOG.md
+
+pages:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  stage: deploy
+  script:
+    - dotnet new tool-manifest
+    - dotnet tool install docfx
+    - dotnet tool run docfx ./docs/docfx.json --build
+    - mv ./docs/_site public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

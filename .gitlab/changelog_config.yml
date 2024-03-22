@@ -1,0 +1,34 @@
+---
+categories:
+  added: ':rocket: Nouvelle fonctionnalité'
+  fixed: ':tools: Résolution de bug'
+  changed: ':pencil2: Modification de fonctionnement'
+  deprecated: ':timer: Déprécié'
+  doc: ':page_facing_up: Documentation'
+  removed: ':x: Supprimé'
+  security: ':man_police_officer: Modification de sécurité'
+  performance: ':fast_forward: Amélioration de performances'
+  other: 'Autres'
+include_groups:
+
+  - poc98
+date_format: '%d/%m/%y'
+template: |
+  {% if categories %}
+  {% each categories %}
+  ### {{ title }} ({% if single_change %}1 changement{% else %}{{ count }} changements{% end %})
+  {% each entries %}
+  - [{{ title }}]({{ commit.reference }})\
+  {% if author %} by {{ author.reference }}{% end %}\
+  {% if commit.trailers.MR %}\
+   ([merge request]({{ commit.trailers.MR }}))\
+  {% else %}\
+  {% if merge_request %}\
+   ([merge request]({{ merge_request.reference }}))\
+  {% end %}\
+  {% end %}\
+  {% end %}
+  {% end %}
+  {% else %}
+  No changes.
+  {% end %}

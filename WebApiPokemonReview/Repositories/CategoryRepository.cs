@@ -1,4 +1,5 @@
-﻿using WebApiPokemonReview.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApiPokemonReview.Data;
 using WebApiPokemonReview.Interfaces;
 using WebApiPokemonReview.Models;
 
@@ -13,16 +14,30 @@ namespace WebApiPokemonReview.Repositories
             return _context.Categories.Any(c => c.Id == id);
         }
 
-        public bool CreateCategory(Category category)
+        public void CreateCategory(Category category)
         {
             _context.Add(category);
-            return Save();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
-        public bool DeleteCategory(Category category)
+        public void DeleteCategory(Category category)
         {
             _context.Remove(category);
-            return Save();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public ICollection<Category> GetCategories()
@@ -40,16 +55,17 @@ namespace WebApiPokemonReview.Repositories
             return _context.PokemonCategories.Where(e => e.CategoryId == categoryId).Select(c => c.Pokemon).ToList();
         }
 
-        public bool Save()
-        {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
-        }
-
-        public bool UpdateCategory(Category category)
+        public void UpdateCategory(Category category)
         {
             _context.Update(category);
-            return Save();
+            try
+            {
+                _context.SaveChanges();
+            } 
+            catch (DbUpdateException e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

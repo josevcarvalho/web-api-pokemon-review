@@ -1,8 +1,8 @@
 variables:
-  PROJECT_NAME: "MyProject"
-  REPORT_GENERATOR_FILE_FILTER: "-AspNetCoreGeneratedDocument.*;Program"
-  CONFIG_FILE: ".config/config.json"
-  
+  PROJECT_NAME: 'MyProject'
+  REPORT_GENERATOR_FILE_FILTER: '-AspNetCoreGeneratedDocument.*;Program'
+  CONFIG_FILE: '.config/config.json'
+
 stages:
   - build
   - test
@@ -11,7 +11,7 @@ stages:
   - deploy
 
 build:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: build
   script:
     - apt-get update
@@ -21,7 +21,7 @@ build:
     - dotnet build --configuration Release -p:Version=${VERSION}
 
 test-with-report:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   script:
     - dotnet new tool-manifest
@@ -47,7 +47,7 @@ test-with-report:
         - ./**/JunitResult.xml
 
 publish:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: publish
   script:
     - apt-get update
@@ -61,12 +61,12 @@ publish:
     - ls ..
   artifacts:
     paths:
-      - "./*.zip"
+      - './*.zip'
 
 upload:
   image: python:3.11
   stage: publish
-  needs: [ "publish" ]
+  needs: ['publish']
   script:
     - apt-get update
     - apt-get install -y jq curl
@@ -81,7 +81,7 @@ upload:
 add-changelog:
   stage: release
   image: python:3.11
-  script: 
+  script:
     - apt-get update
     - apt-get install -y curl jq
     - VERSION=$(jq -r '.version' ./.config/config.json)
@@ -94,7 +94,7 @@ add-changelog:
 release-job:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
-  needs: ["add-changelog"]
+  needs: ['add-changelog']
   rules:
     - if: $CI_COMMIT_TAG
       when: never
@@ -110,7 +110,7 @@ release-job:
         --description ./CHANGELOG.md
 
 pages:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: deploy
   script:
     - dotnet new tool-manifest

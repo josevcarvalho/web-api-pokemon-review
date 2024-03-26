@@ -8,21 +8,16 @@ namespace WebApiPokemonReview.Repositories
     {
         private readonly DataContext _context = context;
 
-        public Pokemon? GetPokemon(Func<Pokemon, bool> predicate)
+        public Pokemon GetPokemon(Func<Pokemon, bool> predicate)
         {
             return _context.Pokemon.Where(predicate).FirstOrDefault();
         }
 
         public decimal GetPokemonRating(int id)
         {
-            var review = _context.Reviews.Where(p => p.Pokemon.Id == id);
+            var reviews = _context.Reviews.Where(p => p.Pokemon.Id == id);
 
-            if (!review.Any())
-            {
-                return 0;
-            }
-
-            return (decimal)review.Sum(r => r.Rating) / review.Count();
+            return reviews.Any() ? (decimal)reviews.Sum(r => r.Rating) / reviews.Count() : 0;
         }
 
         public ICollection<Pokemon> GetPokemon()

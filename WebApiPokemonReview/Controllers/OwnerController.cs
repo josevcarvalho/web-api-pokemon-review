@@ -4,7 +4,6 @@ using System.Net;
 using WebApiPokemonReview.Dto;
 using WebApiPokemonReview.Interfaces;
 using WebApiPokemonReview.Models;
-using WebApiPokemonReview.Repositories;
 
 namespace WebApiPokemonReview.Controllers
 {
@@ -78,7 +77,11 @@ namespace WebApiPokemonReview.Controllers
 
             ownerMap.Country = _countryRepository.GetCountry(countryId);
 
-            if (!_ownerRepository.CreateOwner(ownerMap))
+            try
+            {
+                _ownerRepository.CreateOwner(ownerMap);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong while savin");
                 return StatusCode(500, ModelState);
@@ -104,7 +107,11 @@ namespace WebApiPokemonReview.Controllers
 
             var ownerMap = _mapper.Map<Owner>(updatedOwner);
 
-            if (!_ownerRepository.UpdateOwner(ownerMap))
+            try
+            {
+                _ownerRepository.UpdateOwner(ownerMap);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong updating owner");
                 return StatusCode(500, ModelState);
@@ -128,7 +135,11 @@ namespace WebApiPokemonReview.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_ownerRepository.DeleteOwner(ownerToDelete))
+            try
+            {
+                _ownerRepository.DeleteOwner(ownerToDelete);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong deleting owner");
                 return StatusCode(500, ModelState);

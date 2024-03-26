@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApiPokemonReview.Data;
 using WebApiPokemonReview.Interfaces;
 using WebApiPokemonReview.Models;
@@ -15,16 +14,16 @@ namespace WebApiPokemonReview.Repositories
             return _context.Countries.Any(c => c.Id == id);
         }
 
-        public bool CreateCountry(Country country)
+        public void CreateCountry(Country country)
         {
             _context.Add(country);
-            return Save();
+            _context.SaveChanges();
         }
 
-        public bool DeleteCountry(Country country)
+        public void DeleteCountry(Country country)
         {
             _context.Remove(country);
-            return Save();
+            _context.SaveChanges();
         }
 
         public ICollection<Country> GetCountries()
@@ -32,14 +31,14 @@ namespace WebApiPokemonReview.Repositories
             return _context.Countries.ToList();
         }
 
-        public Country? GetCountry(int id)
+        public Country GetCountry(int id)
         {
-            return _context.Countries.Where(c => c.Id == id).FirstOrDefault();
+            return _context.Countries.Where(c => c.Id == id).First();
         }
 
-        public Country? GetCountryByOwner(int ownerId)
+        public Country GetCountryByOwner(int ownerId)
         {
-            return _context.Owners.Where(o => o.Id == ownerId).Select(o => o.Country).FirstOrDefault();
+            return _context.Owners.Where(o => o.Id == ownerId).Select(o => o.Country).First();
         }
 
         public ICollection<Owner> GetOwnersFromACountry(int countryId)
@@ -47,15 +46,10 @@ namespace WebApiPokemonReview.Repositories
             return _context.Owners.Include(c => c.Country).Where(c => c.Country.Id == countryId).ToList();
         }
 
-        public bool Save()
-        {
-            return _context.SaveChanges() > 0;
-        }
-
-        public bool UpdateCountry(Country country)
+        public void UpdateCountry(Country country)
         {
             _context.Update(country);
-            return Save();
+            _context.SaveChanges();
         }
     }
 }

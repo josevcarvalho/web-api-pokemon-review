@@ -73,7 +73,11 @@ namespace WebApiPokemonReview.Controllers
 
             var categoryMap = _mapper.Map<Category>(categoryCreate);
 
-            if (!_categoryRepository.CreateCategory(categoryMap))
+            try
+            {
+                _categoryRepository.CreateCategory(categoryMap);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong while savin");
                 return StatusCode(500, ModelState);
@@ -99,7 +103,11 @@ namespace WebApiPokemonReview.Controllers
 
             var categoryMap = _mapper.Map<Category>(updatedCategory);
 
-            if (!_categoryRepository.UpdateCategory(categoryMap))
+            try
+            {
+                _categoryRepository.UpdateCategory(categoryMap);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong updating category");
                 return StatusCode(500, ModelState);
@@ -122,8 +130,11 @@ namespace WebApiPokemonReview.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            if (!_categoryRepository.DeleteCategory(categoryToDelete))
+            try
+            {
+                _categoryRepository.DeleteCategory(categoryToDelete);
+            }
+            catch
             {
                 ModelState.AddModelError("", "Something went wrong deleting category");
                 return StatusCode(500, ModelState);

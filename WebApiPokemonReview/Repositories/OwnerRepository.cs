@@ -8,21 +8,21 @@ namespace WebApiPokemonReview.Repositories
     {
         private readonly DataContext _context = context;
 
-        public bool CreateOwner(Owner owner)
+        public void CreateOwner(Owner owner)
         {
             _context.Add(owner);
-            return Save();
+            _context.SaveChanges();
         }
 
-        public bool DeleteOwner(Owner owner)
+        public void DeleteOwner(Owner owner)
         {
             _context.Remove(owner);
-            return Save();
+            _context.SaveChanges();
         }
 
-        public Owner? GetOwner(int ownerId)
+        public Owner GetOwner(int ownerId)
         {
-            return _context.Owners.Where(o => o.Id == ownerId).FirstOrDefault();
+            return _context.Owners.Where(o => o.Id == ownerId).First();
         }
 
         public ICollection<Owner> GetOwnerOfAPokemon(int pokemonId)
@@ -45,15 +45,10 @@ namespace WebApiPokemonReview.Repositories
             return _context.Owners.Any(o => o.Id == ownerId);
         }
 
-        public bool Save()
-        {
-            return _context.SaveChanges() > 0;
-        }
-
-        public bool UpdateOwner(Owner owner)
+        public void UpdateOwner(Owner owner)
         {
             _context.Update(owner);
-            return Save();
+            _context.SaveChanges();
         }
     }
 }

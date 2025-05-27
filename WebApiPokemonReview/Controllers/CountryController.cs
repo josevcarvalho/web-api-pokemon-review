@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PokemonReview.WebApi.Dto;
+using PokemonReview.WebApi.Interfaces;
+using PokemonReview.WebApi.Models;
 using System.Net;
-using WebApiPokemonReview.Dto;
-using WebApiPokemonReview.Interfaces;
-using WebApiPokemonReview.Models;
 
-namespace WebApiPokemonReview.Controllers
+namespace PokemonReview.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

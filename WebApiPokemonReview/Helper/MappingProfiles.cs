@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using WebApiPokemonReview.Dto;
-using WebApiPokemonReview.Models;
+using PokemonReview.WebApi.Dto;
+using PokemonReview.WebApi.Models;
 
-namespace WebApiPokemonReview.Helper
+namespace PokemonReview.WebApi.Helper
 {
     public class MappingProfiles : Profile
     {

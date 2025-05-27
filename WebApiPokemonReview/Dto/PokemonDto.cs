@@ -1,6 +1,6 @@
 ﻿using WebApiPokemonReview.Models;
 
-namespace WebApiPokemonReview.Dto
+namespace PokemonReview.WebApi.Dto
 {
     public class PokemonDto
     {

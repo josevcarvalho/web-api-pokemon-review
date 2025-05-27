@@ -1,8 +1,8 @@
-﻿using WebApiPokemonReview.Data;
-using WebApiPokemonReview.Interfaces;
-using WebApiPokemonReview.Models;
+﻿using PokemonReview.WebApi.Data;
+using PokemonReview.WebApi.Interfaces;
+using PokemonReview.WebApi.Models;
 
-namespace WebApiPokemonReview.Repositories
+namespace PokemonReview.WebApi.Repositories
 {
     public class ReviewRepository(DataContext context) : IReviewRepository
     {

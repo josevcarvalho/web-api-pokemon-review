@@ -1,6 +1,6 @@
-﻿using WebApiPokemonReview.Models;
+﻿using PokemonReview.WebApi.Models;
 
-namespace WebApiPokemonReview.Interfaces
+namespace PokemonReview.WebApi.Interfaces
 {
     public interface IPokemonRepository
     {

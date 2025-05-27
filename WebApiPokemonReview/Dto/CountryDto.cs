@@ -1,4 +1,4 @@
-﻿namespace WebApiPokemonReview.Dto
+﻿namespace PokemonReview.WebApi.Dto
 {
     public class CountryDto
     {

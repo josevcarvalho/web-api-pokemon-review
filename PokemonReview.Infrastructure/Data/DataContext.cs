@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PokemonReview.Domain.Entities;
 
-namespace PokemonReview.Infrastructure.Database;
+namespace PokemonReview.Infrastructure.Data;
 
 public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {

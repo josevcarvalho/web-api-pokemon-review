@@ -1,16 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PokemonReview.Domain.Repositories;
-using PokemonReview.Infrastructure.Database;
+using PokemonReview.Domain.Infrastructure.Repositories;
+using PokemonReview.Infrastructure.Data;
 using PokemonReview.Infrastructure.Repositories;
 
 namespace PokemonReview.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        return services.AddDatabase().AddRepositories();
+        return services
+            .AddDatabase(configuration)
+            .AddRepositories();
     }
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
@@ -20,11 +24,11 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddDatabase(this IServiceCollection services)
+    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<DataContext>(options =>
         {
-            var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Projetos\db\pokemon-review.mdf;Integrated Security=True;Connect Timeout=30";
+            var connectionString = configuration.GetConnectionString("SqlServer");
             options.UseSqlServer(connectionString);
         });
 

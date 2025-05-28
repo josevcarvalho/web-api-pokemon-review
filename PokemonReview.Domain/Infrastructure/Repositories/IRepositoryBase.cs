@@ -1,6 +1,6 @@
 ﻿using PokemonReview.Domain.Entities;
 
-namespace PokemonReview.Domain.Repositories;
+namespace PokemonReview.Domain.Infrastructure.Repositories;
 
 public interface IRepositoryBase<T> where T : EntityBase
 {

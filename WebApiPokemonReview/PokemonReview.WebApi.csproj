@@ -10,4 +10,9 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\PokemonReview.Application\PokemonReview.Application.csproj" />
+	  <ProjectReference Include="..\PokemonReview.Infrastructure\PokemonReview.Infrastructure.csproj" />
+	</ItemGroup>
+
 </Project>
